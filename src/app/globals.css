@@ -31,3 +31,7 @@ body {
     text-wrap: balance;
   }
 }
+
+.Toastify__toast-body > div:last-child {
+  width: 235px !important;
+}
