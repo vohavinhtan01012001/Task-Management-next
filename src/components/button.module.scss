@@ -1,0 +1,73 @@
+$color1: #6557e2; // Màu đỏ
+$color3: #a204fead; // Màu xanh lá
+$color2: #04a9f5; // Màu xanh lá
+
+.button {
+    display: inline-block;
+    padding: .75rem 1.25rem;
+    border-radius: 10rem;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 1rem;
+    letter-spacing: .15rem;
+    transition: all .4s;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    background-image: linear-gradient(to right, $color2, $color1);
+
+    &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0%;
+        width: 20%;
+        height: 100%;
+        border-radius: 100%;
+        background-image: linear-gradient(to right, $color1, $color2);
+
+        z-index: 2;
+        transition: all .7s;
+        border: 0
+    }
+
+    // &:before {
+    //     content: '';
+    //     position: absolute;
+    //     bottom: 0;
+    //     left: -30%;
+    //     width: 20%;
+    //     height: 100%;
+    //     border-radius: 100%;
+    //     background-color: $color3;
+    //     transition: all 1s;
+    //     z-index: 2;
+    // }
+
+    &:hover {
+        color: white;
+        // &:before {
+        //     left: 80%;
+        // }
+
+        &::after {
+            left: 80%;
+        }
+    }
+}
+
+
+.buttonLoading {
+    display: inline-block;
+    padding: .75rem 1.25rem;
+    border-radius: 10rem;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 1rem;
+    letter-spacing: .15rem;
+    transition: all .4s;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    background-image: linear-gradient(to right, $color2, $color1);
+}

@@ -139,16 +139,14 @@ const request = async <Response>(
   // Đảm bảo logic dưới đây chỉ chạy ở phía client (browser)
   if (isClient()) {
     if (
-      ['auth/login', 'auth/register'].some(
+      ['api/v1/authorization/login'].some(
         (item) => item === normalizePath(url)
       )
     ) {
-      const { token, expiresAt } = (payload as any).data
-      localStorage.setItem('sessionToken', token)
-      localStorage.setItem('sessionTokenExpiresAt', expiresAt)
-    } else if ('auth/logout' === normalizePath(url)) {
+      const { accessToken } = (payload as any)
+      localStorage.setItem('sessionToken', accessToken)
+    } else if ('api/auth/logout' === normalizePath(url)) {
       localStorage.removeItem('sessionToken')
-      localStorage.removeItem('sessionTokenExpiresAt')
     }
   }
   return data

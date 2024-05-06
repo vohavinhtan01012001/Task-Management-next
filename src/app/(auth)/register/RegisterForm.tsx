@@ -21,10 +21,10 @@ export default function RegisterForm() {
         try {
             setLoading(true)
             const res = await authApiRequest.register(values)
+            navigation.push('/login');
             toast.success(res.payload.message, {
                 position: toast.POSITION.TOP_RIGHT
             })
-            navigation.push('/login');
         } catch (error: any) {
             setLoading(true)
             toast.error(error.payload.message, {
@@ -98,7 +98,7 @@ export default function RegisterForm() {
                                 </div>
                             </div>
                             <div>
-                                <LabelCustom required style={{ fontSize: "13px" }}>Address</LabelCustom>
+                                <LabelCustom style={{ fontSize: "13px" }}>Address</LabelCustom>
                                 <div>
                                     <Field className="p-3 border rounded-lg w-full text-base" style={formik.touched.address && formik.errors.address ? { outlineColor: "rgb(247 167 167)", outline: "2px solid transparent" } : { outline: "2px solid transparent", outlineColor: "#dbdbdb" }} name="address" />
                                     {

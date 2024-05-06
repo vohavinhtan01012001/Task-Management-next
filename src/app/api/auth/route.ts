@@ -11,7 +11,7 @@ export async function POST(sessionToken: Request) {
     return Response.json(sessionTokenValue, {
       status: 200,
       headers: {
-        'Set-Cookie': `sessionToken=${sessionTokenValue}; Path=/; SameSite=Lax; Secure`
+        'Set-Cookie': `sessionToken=${sessionTokenValue}; Path=/; SameSite=Lax; Secure; HttpOnly;`
       }
     })
-  }
+}

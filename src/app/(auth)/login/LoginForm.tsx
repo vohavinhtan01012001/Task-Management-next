@@ -4,7 +4,7 @@ import LabelCustom from "@/components/LabelCustom";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import Link from "next/link";
-import { Formik, Form, Field, ErrorMessage, FormikErrors } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import { loginSchema } from "@/schemaValidations/auth.schema";
 import { Input } from "antd";
 import authApiRequest from "@/apiRequests/auth";
@@ -23,10 +23,10 @@ export default function LoginForm() {
             const res = await authApiRequest.login(values)
             await authApiRequest.auth(res.payload.accessToken)
             setUser(res.payload.user)
+            router.push('/today')
             toast.success(res.payload.message, {
                 position: toast.POSITION.TOP_RIGHT
             })
-            router.push('/register')
         } catch (error: any) {
             toast.error(error.payload.message, {
                 position: toast.POSITION.TOP_RIGHT
@@ -76,7 +76,7 @@ export default function LoginForm() {
                                 <Link href={'/register'} className="hover:text-red-500" style={{ fontSize: "14px", float: "right", paddingTop: "5px" }}>Forgot password?</Link>
                             </div>
                             <div className="mt-16 text-center">
-                                <ButtonCustom title="Login" width={200} height={45} style={{ fontSize: "18px", fontWeight: "bold" }} type="submit" loading={loading} />
+                                <ButtonCustom loading={loading} title="Login" width={200} height={50} style={{ fontSize: "18px", fontWeight: "bold" }} type="submit" />
                             </div>
                         </Form>
                     )}
