@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import AppProvider from "./app-provider";
 const inter = Inter({ subsets: ["latin"] });
-import Head from "next/head";
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,11 +19,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        <link rel="stylesheet" href="/_next/static/css/app/layout.css?v=1714965362265" data-precedence="next_static/css/app/layout.css"></link>
-      </Head>
       <body className={inter.className}>
         <ToastContainer />
         <AppProvider>

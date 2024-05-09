@@ -18,10 +18,21 @@ const config: Config = {
         wiggle: {
           'from': { top: '-40%', opacity:"1"},
           'to': { top: '-100%', opacity:"0.8"},
+        },
+        show: {
+          'from': { transform: 'translateX(-5%)', opacity:"1"},
+          'to': { transform: 'translateX(0)', opacity:"1"},
+        },
+        showtask: {
+          'from': { transform: 'translateY(-7%)', opacity:"1"},
+          'to': { transform: 'translateY(0)', opacity:"1"},
         }
       },
+      
       animation: {
         'show-box': 'wiggle 0.4s ease-out',
+        'show-section': 'show 0.4s ease',
+        'show-add-task': 'showtask 0.4s ease',
       }
       
     },

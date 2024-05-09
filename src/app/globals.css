@@ -45,6 +45,7 @@ body {
 
 .mainWrapper {
   @apply flex flex-1 flex-col overflow-x-hidden overflow-y-scroll;
+  background-color: white;
 }
 
 .mainCard {
@@ -68,15 +69,15 @@ body {
 }
 
 .cardDanger {
-  @apply border border-red-400  bg-red-200 text-red-900;
+  @apply border border-red-400 bg-red-200 text-red-900;
 }
 
 .cardSuccess {
-  @apply border border-emerald-400  bg-emerald-200 text-emerald-900;
+  @apply border border-emerald-400 bg-emerald-200 text-emerald-900;
 }
 
 .cardLime {
-  @apply border border-lime-400  bg-lime-200 text-lime-900;
+  @apply border border-lime-400 bg-lime-200 text-lime-900;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -84,6 +85,14 @@ body {
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+
+:where(.css-dev-only-do-not-override-mzwlov).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
+  color: rgb(21 128 61);
+  border-color: #d3d3d3;
 }

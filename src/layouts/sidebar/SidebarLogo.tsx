@@ -25,6 +25,7 @@ function SidebarLogo({ icon, text, setShowAddTask/* ...props */ }: PropsLogo) {
       >
         <FontAwesomeIcon icon={faPlusCircle} className='pr-4 text-2xl' /> Add Task
       </button>
+      <p className="text-center pr-6">===========</p>
     </div >
   )
 }

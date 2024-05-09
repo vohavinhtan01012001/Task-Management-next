@@ -29,16 +29,17 @@ function Sidebar({ ...props }) {
       const userObject = user && JSON.parse(user)
       if (userObject && userObject.fullname) {
         const fullname = userObject.fullname;
+        console.log(fullname)
         const lastSpaceIndex = fullname.lastIndexOf(' ');
-
         if (lastSpaceIndex !== -1) {
           setNameUser(fullname[lastSpaceIndex + 1]);
+        }
+        else {
+          setNameUser(fullname[0]);
         }
       }
     }
   }, [])
-
-
 
 
   const handleChange = (e: any) => {
@@ -94,7 +95,7 @@ function Sidebar({ ...props }) {
                   nameUser && <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00', fontWeight: "bold", cursor: "pointer" }} size={40} onClick={() => setShowListView(!showListView)}>{nameUser}</Avatar>
                 }
                 {
-                  <ul className={`absolute -top-[50%] left-0 w-[100px] h-[35px] z-[999] rounded-lg pt-2 transition-transform translate-y-0 opacity-0 duration-300 ${showListView ? '-translate-y-6 opacity-100' : ''}`} style={{ background: 'rgb(187, 247, 208)' }}>
+                  <ul className={`absolute -top-[50%] left-0 w-[100px] h-[35px] z-[999] rounded-lg pt-2 translate-y-0 opacity-0 duration-300 transition-all ${showListView ? '-translate-y-7 opacity-100 mt-3' : ''}`} style={{ background: 'rgb(187, 247, 208)' }}>
                     <li className='text-start pl-2 text-sm hover:text-red-500 hover:cursor-pointer' onClick={() => setShowProfile(true)}>Profile</li>
                   </ul>
                 }
