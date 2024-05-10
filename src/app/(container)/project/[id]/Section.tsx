@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation';
 import { toast } from 'react-toastify';
 import projectApiRequest from '@/apiRequests/project';
 import { projectType } from '@/schemaValidations/project.schema';
+import Image from 'next/image';
 
 export default function Section() {
     const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -134,7 +135,13 @@ export default function Section() {
                     }
                 </div>
             </div>
-
+            <div>
+                {
+                    sections.length <= 0 && <div className='mx-auto'>
+                        <Image src={"/study.jpg"} width={800} height={200}  className='mx-auto' alt='study'/>
+                    </div>
+                }
+            </div>
         </>
     )
 }

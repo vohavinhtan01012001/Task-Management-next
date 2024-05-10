@@ -7,7 +7,7 @@ import { faCheck, faDeleteLeft, faPlus, faShare } from "@fortawesome/free-solid-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DatePicker } from "antd";
 import ColorPicker, { Color } from 'antd/es/color-picker';
-import { useEffect, useState } from "react";
+import { DragEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import dayjs from 'dayjs';
 
@@ -23,6 +23,7 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
     const [valueColor, setValueColor] = useState<string>("#000");
     const [showAddTask, setShowAddTask] = useState<boolean>(false);
     const [tasks, setTasks] = useState<taskType[]>([])
+    const [date, setDate] = useState<[string, string]>()
     const [form, setForm] = useState({
         title: '',
         note: '',
@@ -40,12 +41,12 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
         if (projectId && userId && sectionId) {
             setForm({ ...form, color: valueColor, projectId: projectId, userId: userId, sectionId: sectionId })
         }
-    }, [showAddTask])
+    }, [showAddTask, valueColor])
 
     const handleSubmit = async () => {
         try {
             console.log(form)
-            const res = await taskApiRequest.addTask(form)
+            const res = await taskApiRequest.addTask({ ...form, startDate: date ? date[0] : null, endDate: date ? date[1] : null })
             setTasks([...tasks, res.payload.task])
             handleCloseAddTask()
         }
@@ -84,12 +85,62 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
         getTasks();
     }, [sectionId])
 
+    const [draggingElement, setDraggingElement] = useState<taskType | null>(null);
+    const [style, setStyle] = useState(0)
+    const dragStart = (event: DragEvent<HTMLDivElement>, task: taskType) => {
+        setDraggingElement(task);
+        // Add drag data
+        event.dataTransfer.setData('text/plain', '');
+
+    };
+
+    const dragOver = (event: DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.currentTarget.style.opacity = '1';
+    };
+
+    const dragEnter = (event: DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.currentTarget.style.opacity = '1';
+    };
+
+    const dragLeave = (event: DragEvent<HTMLDivElement>) => {
+        event.currentTarget.style.opacity = '1';
+    };
+
+    const drop = (event: DragEvent<HTMLDivElement>, task: taskType) => {
+        event.preventDefault();
+        event.currentTarget.style.opacity = '1';
+
+        if (draggingElement && draggingElement.id !== task.id) {
+            const draggingIndex = tasks.findIndex(item => item.id === draggingElement.id);
+            const targetIndex = tasks.findIndex(item => item.id === task.id);
+
+            const updateTask = [...tasks]
+            updateTask.splice(targetIndex, 0, updateTask.splice(draggingIndex, 1)[0]);
+            setTasks([...updateTask])
+            setDraggingElement(null);
+        }
+    };
+
+    const dragEnd = () => {
+        setDraggingElement(null);
+    };
+
     return (
         <>
             {
                 tasks.map((task, index) => {
                     return (
-                        <div key={index} className='shadow-sm hover:shadow-md hover:cursor-pointer w-full border rounded-lg pt-3 pb-1 px-2 my-4 duration-300'>
+                        <div key={index}
+                            draggable={true}
+                            onDragStart={(e) => dragStart(e, task)}
+                            onDragOver={dragOver}
+                            onDragEnter={dragEnter}
+                            onDragLeave={dragLeave}
+                            onDrop={(e) => drop(e, task)}
+                            onDragEnd={dragEnd}
+                            className={`box${task.id} relative shadow-sm hover:shadow-md hover:cursor-pointer w-full border rounded-lg pt-3 pb-1 px-2 my-4 duration-300`}>
                             <div className='flex items-center pb-2 overflow-hidden whitespace-nowrap text-ellipsis w-full'>
                                 <div className='pr-[10px]'>
                                     <div className={`relative border-[2px] border-solid rounded-full w-[20px] h-[20px]`} style={{
@@ -100,7 +151,8 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
                                 </div>
                                 <p className='text-gray-800 text-sm w-full truncate'>{task.title}</p>
                             </div>
-                            {task.startDate ? <p className='text-red-400 text-xs pl-8'>{task.startDate}</p> : ""}
+                            {task.startDate ? <p className='text-red-400 text-xs pl-8'>{task.startDate}--->{task.endDate}</p> : ""}
+                            {/* <div className={`${style === task.id ? 'absolute top-0 right-0 left-0 bottom-0 rounded-lg  bg-slate-300': ''}`}></div> */}
                         </div>
                     )
                 })
@@ -129,8 +181,8 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
                                 />
                                 <RangePicker
                                     className="w-[70%]"
-                                    defaultValue={[dayjs('2015/01/01', dateFormat), dayjs('2015/01/01', dateFormat)]}
                                     format={dateFormat}
+                                    onChange={(value, dateStrings) => setDate([...dateStrings])}
                                 />
                             </div>
                         </div>
@@ -138,8 +190,8 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
                             <button className="pr-6" onClick={handleCloseAddTask}>
                                 <FontAwesomeIcon icon={faDeleteLeft} className="text-2xl text-gray-400 hover:text-red-500 duration-300" />
                             </button>
-                            <button onClick={handleSubmit}>
-                                <FontAwesomeIcon icon={faShare} className="text-2xl text-gray-400 hover:text-green-700 duration-300" />
+                            <button onClick={handleSubmit} disabled={form.title ? false : true}>
+                                <FontAwesomeIcon icon={faShare} className={`text-2xl text-gray-400 ${form.title ? "hover:text-green-700" : ""} duration-300`} />
                             </button>
                         </div>
                     </div>
@@ -149,8 +201,6 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
                             <p className='text-sm text-gray-600'>Add task</p>
                         </button>
                 }
-
-
             </div>
         </>
     )
