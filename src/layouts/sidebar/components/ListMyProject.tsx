@@ -2,9 +2,10 @@
 
 import React, { useState, DragEvent, SetStateAction, Dispatch } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { projectType } from '@/schemaValidations/project.schema';
 import { useRouter } from 'next/navigation';
+import projectApiRequest from '@/apiRequests/project';
 
 
 interface DraggableListProps {
@@ -18,6 +19,7 @@ interface DraggableListProps {
 const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFavorite, projectsFavorite, pathName, showMyProjects }) => {
     const [draggingElement, setDraggingElement] = useState<projectType | null>(null);
     const navigation = useRouter()
+    const [isHovered,setIsHovered] = useState<boolean>(false);
     const dragStart = (event: DragEvent<HTMLDivElement>, project: projectType) => {
         setDraggingElement(project);
         // Add drag data
@@ -37,7 +39,7 @@ const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFav
         event.currentTarget.style.opacity = '1';
     };
 
-    const drop = (event: DragEvent<HTMLDivElement>, project: projectType) => {
+    const drop = async (event: DragEvent<HTMLDivElement>, project: projectType) => {
         event.preventDefault();
         event.currentTarget.style.opacity = '1';
 
@@ -49,6 +51,11 @@ const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFav
             updateProjects.splice(targetIndex, 0, updateProjects.splice(draggingIndex, 1)[0]);
             console.log(updateProjects)
             setProjectsFavorite([...updateProjects])
+            const projectList = updateProjects.map((task, index) => {
+                return ({ id: task.id, priority: index })
+            })
+            console.log(projectList)
+            await projectApiRequest.updatePriority(projectList)
             setDraggingElement(null);
         }
     };
@@ -77,7 +84,10 @@ const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFav
                             onDragEnd={dragEnd}
                             onClick={() => navigation.push('/project/' + project.id)}
                         >
-                            <div className='flex items-center justify-between'>
+                            <div className='flex items-center justify-between '
+                                onMouseEnter={() => setIsHovered(true)}
+                                onMouseLeave={() => setIsHovered(false)}
+                            >
                                 <div
                                     className={` flex justify-start font-mono items-center pl-4 text-gray-500 text-base pb-2 pt-2 cursor-pointer animate-wiggle ${showMyProjects ? 'cursor-pointer' : 'cursor-default'} overflow-hidden whitespace-nowrap text-ellipsis`}
                                 >
@@ -86,6 +96,7 @@ const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFav
                                     </span>
                                     <p className='w-full truncate'>{project.title}</p>
                                 </div>
+                                <p className='pr-2 text-md text-gray-400'>{isHovered ? <FontAwesomeIcon icon={faEllipsis} className='hover:text-gray-700'/>:''}</p>
                             </div>
                         </div>
                     </li>

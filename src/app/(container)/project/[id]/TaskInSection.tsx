@@ -9,7 +9,6 @@ import { DatePicker } from "antd";
 import ColorPicker, { Color } from 'antd/es/color-picker';
 import { DragEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import dayjs from 'dayjs';
 
 interface Props {
     projectId: number;
@@ -23,7 +22,7 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
     const [valueColor, setValueColor] = useState<string>("#000");
     const [showAddTask, setShowAddTask] = useState<boolean>(false);
     const [tasks, setTasks] = useState<taskType[]>([])
-    const [date, setDate] = useState<[string, string]>()
+    const [date, setDate] = useState<[string | null, string | null]>([null, null])
     const [form, setForm] = useState({
         title: '',
         note: '',
@@ -69,6 +68,7 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
             projectId: 0,
             color: '#000',
         })
+        setDate([null, null])
     }
 
 
@@ -108,7 +108,7 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
         event.currentTarget.style.opacity = '1';
     };
 
-    const drop = (event: DragEvent<HTMLDivElement>, task: taskType) => {
+    const drop = async (event: DragEvent<HTMLDivElement>, task: taskType) => {
         event.preventDefault();
         event.currentTarget.style.opacity = '1';
 
@@ -119,6 +119,11 @@ export default function TaskInSection({ projectId, userId, sectionId }: Props) {
             const updateTask = [...tasks]
             updateTask.splice(targetIndex, 0, updateTask.splice(draggingIndex, 1)[0]);
             setTasks([...updateTask])
+            const taskList = updateTask.map((task, index) => {
+                return ({ id: task.id, priority: index })
+            })
+            console.log(taskList)
+            await taskApiRequest.updatePriority(taskList)
             setDraggingElement(null);
         }
     };

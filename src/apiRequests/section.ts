@@ -13,7 +13,8 @@ interface SectionApiResponseCreate {
 
 const sectionApiRequest = {
     getAll: (projectId: number) => http.get<SectionApiResponse>(`api/v1/section/${projectId}`),
-    addSection: (section: any) => http.post<SectionApiResponseCreate>('api/v1/section/add-section', section)
+    addSection: (section: any) => http.post<SectionApiResponseCreate>('api/v1/section/add-section', section),
+    updatePriority: (payload:any[]) => http.put<SectionApiResponse>(`api/v1/section/update-priority`,payload)
 }
 
 

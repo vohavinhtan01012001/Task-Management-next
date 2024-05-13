@@ -5,7 +5,7 @@ import TaskInSection from '@/app/(container)/project/[id]/TaskInSection';
 import { sectionType } from '@/schemaValidations/section.schema';
 import { faCheck, faEllipsis, faPlus, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react'
+import React, { DragEvent, useEffect, useState } from 'react'
 import { Button } from 'antd';
 import { usePathname } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -81,6 +81,55 @@ export default function Section() {
         getSections()
     }, [pathName, projectId]);
 
+
+
+    const [draggingElement, setDraggingElement] = useState<sectionType | null>(null);
+    const [style, setStyle] = useState(0)
+    const dragStart = (event: DragEvent<HTMLDivElement>, task: sectionType) => {
+        setDraggingElement(task);
+        // Add drag data
+        event.dataTransfer.setData('text/plain', '');
+
+    };
+
+    const dragOver = (event: DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.currentTarget.style.opacity = '1';
+    };
+
+    const dragEnter = (event: DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.currentTarget.style.opacity = '1';
+    };
+
+    const dragLeave = (event: DragEvent<HTMLDivElement>) => {
+        event.currentTarget.style.opacity = '1';
+    };
+
+    const drop = async (event: DragEvent<HTMLDivElement>, section: sectionType) => {
+        event.preventDefault();
+        event.currentTarget.style.opacity = '1';
+
+        if (draggingElement && draggingElement.id !== section.id) {
+            const draggingIndex = sections.findIndex(item => item.id === draggingElement.id);
+            const targetIndex = sections.findIndex(item => item.id === section.id);
+
+            const updateTask = [...sections]
+            updateTask.splice(targetIndex, 0, updateTask.splice(draggingIndex, 1)[0]);
+            setSections([...updateTask])
+            const sectionList = updateTask.map((task, index) => {
+                return ({ id: task.id, priority: index })
+            })
+            console.log(sectionList)
+            await sectionApiRequest.updatePriority(sectionList)
+            setDraggingElement(null);
+        }
+    };
+
+    const dragEnd = () => {
+        setDraggingElement(null);
+    };
+
     return (
         <>
             <h1 className='text-2xl font-bold font-serif'>{project?.title}</h1>
@@ -88,7 +137,15 @@ export default function Section() {
                 {
                     sections.map((section, index) => {
                         return (
-                            <div key={index} className={`pt-3  ${isSectionAdded === section.id ? 'animate-show-section' : ''}`}>
+                            <div key={index}
+                                draggable={true}
+                                onDragStart={(e) => dragStart(e, section)}
+                                onDragOver={dragOver}
+                                onDragEnter={dragEnter}
+                                onDragLeave={dragLeave}
+                                onDrop={(e) => drop(e, section)}
+                                onDragEnd={dragEnd}
+                                className={`pt-3  ${isSectionAdded === section.id ? 'animate-show-section' : ''}`}>
                                 <div className={`${isHovered ? "" : "hover:shadow-md hover:cursor-grab  active:cursor-grabbing hover:border-gray-200"} duration-300 border border-transparent w-full px-4 pt-4 pb-10 rounded-lg `}>
                                     <div className='flex items-center justify-between pb-4' >
                                         <h3 className=' text-base font-semibold text-gray-600'>{section.title}</h3>
@@ -138,7 +195,7 @@ export default function Section() {
             <div>
                 {
                     sections.length <= 0 && <div className='mx-auto'>
-                        <Image src={"/study.jpg"} width={800} height={200}  className='mx-auto' alt='study'/>
+                        <Image src={"/study.jpg"} width={800} height={200} className='mx-auto mt-8' alt='study' />
                     </div>
                 }
             </div>

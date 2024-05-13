@@ -14,7 +14,8 @@ interface TaskApiResponseCreate {
 const taskApiRequest = {
     // getAll: (projectId: number) => http.get<TaskApiResponse>(`api/v1/task/${projectId}`),
     addTask: (task: any) => http.post<TaskApiResponseCreate>('api/v1/task/add-task', task),
-    getTask: (sectionId:number) => http.get<TaskApiResponse>(`api/v1/task/get-task/${sectionId}`)
+    getTask: (sectionId:number) => http.get<TaskApiResponse>(`api/v1/task/get-task/${sectionId}`),
+    updatePriority: (payload:any[]) => http.put<TaskApiResponse>(`api/v1/task/update-priority`,payload)
 }
 
 export default taskApiRequest;

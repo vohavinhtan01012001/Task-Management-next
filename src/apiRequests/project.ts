@@ -18,6 +18,7 @@ const projectApiRequest = {
       http.post<ProjectApiResponseCreate>('api/v1/project/add-project',project),
     getById: (id: number) => 
       http.get<{project: projectType}>('api/v1/project/get-project/' + id),
+    updatePriority: (payload:any[]) => http.put<ProjectApiResponse>(`api/v1/project/update-priority`,payload)
 }
 
 
