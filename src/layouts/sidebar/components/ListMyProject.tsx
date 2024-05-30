@@ -6,6 +6,7 @@ import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { projectType } from '@/schemaValidations/project.schema';
 import { useRouter } from 'next/navigation';
 import projectApiRequest from '@/apiRequests/project';
+import { motion } from 'framer-motion';
 
 
 interface DraggableListProps {
@@ -19,7 +20,7 @@ interface DraggableListProps {
 const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFavorite, projectsFavorite, pathName, showMyProjects }) => {
     const [draggingElement, setDraggingElement] = useState<projectType | null>(null);
     const navigation = useRouter()
-    const [isHovered,setIsHovered] = useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
     const dragStart = (event: DragEvent<HTMLDivElement>, project: projectType) => {
         setDraggingElement(project);
         // Add drag data
@@ -71,12 +72,12 @@ const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFav
                 const path = pathParts[2];
 
                 return (
-                    <li key={index} className={`transition-all duration-300 ${showMyProjects ? 'translate-y-0 opacity-100' : '-translate-y-5 opacity-0'}`}>
-                        <div
-                            className={`${project.id.toString() === path ? "" : "hover:bg-gray-100 rounded-lg"}`}
+                    <li key={index}>
+                        <motion.div
+                            className={`${project.id.toString() === path ? "" : "hover:bg-gray-100 rounded-lg"} duration-300`}
                             style={project.id.toString() === path ? { backgroundColor: "rgb(187 247 208 / 1)", color: "rgb(20 83 45 / 1)", borderRadius: "8px" } : {}}
                             draggable={showMyProjects}
-                            onDragStart={(e) => dragStart(e, project)}
+                            onDragStart={(e: any) => dragStart(e, project)}
                             onDragOver={dragOver}
                             onDragEnter={dragEnter}
                             onDragLeave={dragLeave}
@@ -96,9 +97,9 @@ const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFav
                                     </span>
                                     <p className='w-full truncate'>{project.title}</p>
                                 </div>
-                                <p className='pr-2 text-md text-gray-400'>{isHovered ? <FontAwesomeIcon icon={faEllipsis} className='hover:text-gray-700'/>:''}</p>
+                                <p className='pr-2 text-md text-gray-400'>{isHovered ? <FontAwesomeIcon icon={faEllipsis} className='hover:text-gray-700' /> : ''}</p>
                             </div>
-                        </div>
+                        </motion.div>
                     </li>
                 );
             })}

@@ -11,6 +11,7 @@ import { projectType } from '@/schemaValidations/project.schema';
 import projectApiRequest from '@/apiRequests/project';
 import AddProject from './components/AddProject';
 import ListMyProject from './components/ListMyProject';
+import { motion } from 'framer-motion';
 
 interface Menu {
   label: string
@@ -68,7 +69,7 @@ const MenuList = ({ menus, toggle }: MenuListProps) => {
 
 
   return (
-    <div className='navWrapper p-4 pt-8'>
+    <div className='navWrapper p-4 pt-8 '>
       <ul id='menu' >
         {menus?.map((menu: Menu) => {
           const pathParts = pathName.split('/');
@@ -110,7 +111,7 @@ const MenuList = ({ menus, toggle }: MenuListProps) => {
         )}
 
         <ul>
-          <li className='my-3 pt-[50px] flex justify-between items-center'>
+          <li className='my-3 pt-[50px] flex justify-between items-center z-50'>
             <span className='text-sm font-bold uppercase text-gray-500'>
               My Projects
             </span>
@@ -121,25 +122,34 @@ const MenuList = ({ menus, toggle }: MenuListProps) => {
               /></button>
             </div>
           </li>
-          {
-            <ListMyProject
-              setProjectsFavorite={setProjectsFavorite}
-              projectsFavorite={projectsFavorite}
-              pathName={pathName}
-              showMyProjects={showMyProjects}
-              favorited={true}
-            />
-          }
-          {projectsFavorite.length > 0 && <li className={`duration-300 ${showMyProjects ? 'translate-y-0 opacity-100' : '-translate-y-5 opacity-0'}`}><span className='pl-4'>-----</span></li>}
-          {
-            <ListMyProject
-              setProjectsFavorite={setProjects}
-              projectsFavorite={projects}
-              pathName={pathName}
-              showMyProjects={showMyProjects}
-              favorited={false}
-            />
-          }
+          <li className='overflow-hidden'>
+            <motion.div
+              animate={showMyProjects ? { opacity: 1, y: 0 } : { opacity: 0, y: -200 }}
+              transition={{
+                duration: 0.3,
+                delay: 0.4,
+              }}>
+              {
+                <ListMyProject
+                  setProjectsFavorite={setProjectsFavorite}
+                  projectsFavorite={projectsFavorite}
+                  pathName={pathName}
+                  showMyProjects={showMyProjects}
+                  favorited={true}
+                />
+              }
+              {projectsFavorite.length > 0 && <li className={`${showMyProjects ? 'block' : 'hidden'}`}><span className='pl-4'>-----</span></li>}
+              {
+                <ListMyProject
+                  setProjectsFavorite={setProjects}
+                  projectsFavorite={projects}
+                  pathName={pathName}
+                  showMyProjects={showMyProjects}
+                  favorited={false}
+                />
+              }
+            </motion.div>
+          </li>
         </ul>
       </ul>
       <AddProject

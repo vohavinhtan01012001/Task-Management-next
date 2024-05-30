@@ -3,7 +3,7 @@
 import sectionApiRequest from '@/apiRequests/section';
 import TaskInSection from '@/app/(container)/project/[id]/TaskInSection';
 import { sectionType } from '@/schemaValidations/section.schema';
-import { faCheck, faEllipsis, faPlus, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faCopy, faEdit, faEllipsis, faPlus, faShare, faShareNodes, faSquarePlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { DragEvent, useEffect, useState } from 'react'
 import { Button } from 'antd';
@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import projectApiRequest from '@/apiRequests/project';
 import { projectType } from '@/schemaValidations/project.schema';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 export default function Section() {
     const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -23,6 +24,10 @@ export default function Section() {
     const [isSectionAdded, setIsSectionAdded] = useState<number>(0)
     const [project, setProject] = useState<projectType>()
     const [user, setUser] = useState<any>({})
+    const [showMenuSection, setShowMenuSection] = useState<number>(0)
+    const [showInputTitle, setShowInputTitle] = useState<number>(0)
+    const [inputTitle, setInputTitle] = useState<string>('')
+    const [showMenuCopy, setShowMenuCopy] = useState<number>(0)
 
     useEffect(() => {
         const pathParts = pathName.split('/');
@@ -130,26 +135,126 @@ export default function Section() {
         setDraggingElement(null);
     };
 
+    const actionHandlers: Record<string, (section: sectionType) => Promise<void> | void> = {
+        Share: async (section: sectionType) => {
+
+        },
+        Copy: async (section: sectionType) => {
+            try {
+                const res = await sectionApiRequest.copySection(section.id);
+                setSections(prev => {
+                    return [...prev, { ...section }]
+                })
+                toast.success(res.payload.message, {
+                    position: toast.POSITION.TOP_RIGHT
+                })
+            } catch (error: any) {
+                toast.error(error.payload.message, {
+                    position: toast.POSITION.TOP_RIGHT
+                })
+            }
+        },
+        Edit: async (section: sectionType) => {
+            setShowInputTitle(section.id);
+            setInputTitle(section.title);
+        },
+        Delete: async (section: sectionType) => {
+            try {
+                const res = await sectionApiRequest.deleteSection(section.id);
+                const dataIndex = sections.findIndex(s => s.id === section.id)
+                if (dataIndex != -1) {
+                    sections.splice(dataIndex, 1);
+                }
+                setSections([...sections]);
+                toast.success(res.payload.message, {
+                    position: toast.POSITION.TOP_RIGHT
+                })
+            } catch (error: any) {
+                toast.error(error.payload.message, {
+                    position: toast.POSITION.TOP_RIGHT
+                })
+            }
+        },
+    }
+
+
+    const handleActions = async (e: any, section: sectionType) => {
+        const action = e.target.closest('button').name;
+        if (!action) return;
+        await actionHandlers[action](section);
+        setShowMenuSection(0);
+    }
+
+    const handleUpdateTitle = async (section: sectionType) => {
+        try {
+            const res = await sectionApiRequest.updateSection(section.id, {
+                title: inputTitle,
+                projectId: section.projectId,
+                userId: section.userId
+            })
+
+            const updateSection = sections.findIndex(s => s.id === section.id)
+            if (updateSection != -1) {
+                sections[updateSection].title = inputTitle;
+            }
+            setSections([...sections])
+            setShowInputTitle(0);
+            toast.success(res.payload.message, {
+                position: toast.POSITION.TOP_RIGHT
+            })
+        } catch (error: any) {
+            toast.error(error.payload.message, {
+                position: toast.POSITION.TOP_RIGHT
+            })
+        }
+    }
+
+
     return (
-        <>
+        <div className=''>
             <h1 className='text-2xl font-bold font-serif'>{project?.title}</h1>
-            <div className='grid grid-cols-5 gap-6 mx-4'>
+            <div className='grid grid-cols-5 gap-6 mx-4 mt-2'>
                 {
                     sections.map((section, index) => {
                         return (
-                            <div key={index}
+                            <motion.div key={index}
                                 draggable={true}
-                                onDragStart={(e) => dragStart(e, section)}
+                                onDragStart={(e: any) => dragStart(e, section)}
                                 onDragOver={dragOver}
                                 onDragEnter={dragEnter}
                                 onDragLeave={dragLeave}
-                                onDrop={(e) => drop(e, section)}
+                                onDrop={(e: any) => drop(e, section)}
                                 onDragEnd={dragEnd}
-                                className={`pt-3  ${isSectionAdded === section.id ? 'animate-show-section' : ''}`}>
-                                <div className={`${isHovered ? "" : "hover:shadow-md hover:cursor-grab  active:cursor-grabbing hover:border-gray-200"} duration-300 border border-transparent w-full px-4 pt-4 pb-10 rounded-lg `}>
-                                    <div className='flex items-center justify-between pb-4' >
-                                        <h3 className=' text-base font-semibold text-gray-600'>{section.title}</h3>
-                                        <button className='hover:text-gray-800 text-gray-400'>
+                                initial={{ opacity: 0, x: -120 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{
+                                    duration: 0.3,
+                                    delay: index * 0.1,
+                                }}
+                                className={`${isHovered ? "" : "hover:shadow-md hover:cursor-grab  active:cursor-grabbing hover:border-gray-200"} border border-transparent w-full px-4 pt-4 pb-10 rounded-lg shadow relative`}
+                            >
+                                <div >
+                                    <div className={`flex ${showInputTitle === section.id ? 'items-start' : 'items-center'} justify-between pb-4`} >
+                                        {
+                                            showInputTitle === section.id ?
+                                                <div className=''>
+                                                    <input defaultValue={section.title} onChange={(e: any) => setInputTitle(e.target.value)} className='border px-2 py-1 rounded-lg outline-none ' />
+                                                    <div className='py-2'>
+                                                        <Button className=' text-gray-500 shadow-md hover:border-gray-500 hover:text-gray-500 font-bold mr-2' onClick={() => setShowInputTitle(0)}>Cancel</Button>
+                                                        <Button
+                                                            style={{ background: 'rgb(187, 247, 208)', borderColor: "rgb(187, 247, 208)" }}
+                                                            className={` text-gray-500 shadow-md ${inputTitle == '' ? '' : 'hover:text-gray-500'} font-bold`}
+                                                            disabled={inputTitle == '' ? true : false}
+                                                            onClick={() => handleUpdateTitle(section)}
+                                                        >
+                                                            Ok
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                                :
+                                                <h3 className=' text-base font-semibold text-gray-600'>{section.title}</h3>
+                                        }
+                                        <button className='hover:text-gray-800 text-gray-400 w-7 h-7' onClick={() => setShowMenuSection(section.id)}>
                                             <FontAwesomeIcon icon={faEllipsis} className=' text-xl' />
                                         </button>
                                     </div>
@@ -161,7 +266,23 @@ export default function Section() {
                                         <TaskInSection projectId={section.projectId} sectionId={section.id} userId={section.userId} />
                                     </div>
                                 </div>
-                            </div>
+                                <div
+                                    className='absolute top-[40px] right-[10px] overflow-hidden rounded-lg z-50'
+                                >
+                                    <motion.div
+                                        className='border w-[130px]'
+                                        animate={showMenuSection === section.id ? { opacity: 1, y: 0 } : { opacity: 0, y: -100 }}
+                                    >
+                                        <div >
+                                            <button name="Share" onClick={(e: any) => handleActions(e, section)} className='w-full py-3 px-3 text-start bg-white hover:bg-gray-100 text-gray-600 text-sm duration-300'><FontAwesomeIcon className='text-gray-500 pr-1' icon={faShareNodes} />{' '}Share</button>
+                                            <button name="Copy" onClick={(e: any) => handleActions(e, section)} className='w-full py-3 px-3 text-start bg-white hover:bg-gray-100 text-gray-600 text-sm duration-300'><FontAwesomeIcon className='text-gray-500 pr-1' icon={faCopy} />{' '}Copy</button>
+                                            <button name="Edit" onClick={(e: any) => handleActions(e, section)} className='w-full py-3 px-3 text-start bg-white hover:bg-gray-100 text-gray-600 text-sm duration-300'><FontAwesomeIcon className='text-gray-500 pr-1' icon={faEdit} />{' '}Edit</button>
+                                            <button name="Delete" onClick={(e: any) => handleActions(e, section)} className='w-full py-3 px-3 text-start bg-white hover:bg-gray-100 text-gray-600 text-sm duration-300'><FontAwesomeIcon className='text-gray-500 pr-1' icon={faTrash} />{' '}Delete</button>
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            </motion.div>
+
                         )
                     })
                 }
@@ -191,7 +312,7 @@ export default function Section() {
 
                     }
                 </div>
-            </div>
+            </div >
             <div>
                 {
                     sections.length <= 0 && <div className='mx-auto'>
@@ -199,6 +320,10 @@ export default function Section() {
                     </div>
                 }
             </div>
-        </>
+            {
+                showMenuSection != 0 && <div className='fixed top-0 right-0 left-0 bottom-0 z-20' onClick={() => setShowMenuSection(0)}></div>
+            }
+
+        </div>
     )
 }

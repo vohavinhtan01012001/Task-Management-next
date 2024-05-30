@@ -1,7 +1,7 @@
 import { faEdit, faPlus, faSquarePlus, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Section from './Section'
-
+import { motion } from "framer-motion"
 export default function page() {
     return (
         <div>
