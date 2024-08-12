@@ -33,6 +33,7 @@
     "react-toastify": "^9.1.3",
     "sass": "^1.76.0",
     "tailwind-merge": "^2.3.0",
+    "TaskManagement": "file:",
     "yup": "^1.4.0"
   },
   "devDependencies": {

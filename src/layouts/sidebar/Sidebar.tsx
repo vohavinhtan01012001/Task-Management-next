@@ -13,6 +13,7 @@ import authApiRequest from '@/apiRequests/auth'
 import { useAppContext } from '@/app/app-provider'
 import { toast } from 'react-toastify'
 import { Avatar } from 'antd'
+import AvatarCus from '@/components/Avatar'
 
 function Sidebar({ ...props }) {
   const [menus, setMenus] = useState(initMenu)
@@ -21,23 +22,13 @@ function Sidebar({ ...props }) {
   const { setUser } = useAppContext()
   const [showListView, setShowListView] = useState<boolean>(false)
   const [showProfile, setShowProfile] = useState<boolean>(false)
-  const [nameUser, setNameUser] = useState<string>();
+  const [userAvatar, setUserAvatar] = useState<any>();
 
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
       const user = localStorage.getItem('user') && localStorage.getItem('user')
       const userObject = user && JSON.parse(user)
-      if (userObject && userObject.fullname) {
-        const fullname = userObject.fullname;
-        console.log(fullname)
-        const lastSpaceIndex = fullname.lastIndexOf(' ');
-        if (lastSpaceIndex !== -1) {
-          setNameUser(fullname[lastSpaceIndex + 1]);
-        }
-        else {
-          setNameUser(fullname[0]);
-        }
-      }
+      setUserAvatar(userObject)
     }
   }, [])
 
@@ -91,9 +82,7 @@ function Sidebar({ ...props }) {
           <div className='border-t border-gray-300 pt-2'>
             <div className=' px-4 py-2 flex justify-between items-center'>
               <div className='relative'>
-                {
-                  nameUser && <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00', fontWeight: "bold", cursor: "pointer" }} size={40} onClick={() => setShowListView(!showListView)}>{nameUser}</Avatar>
-                }
+                <AvatarCus user={userAvatar} />
                 {
                   <ul className={`absolute -top-[50%] left-0 w-[100px] h-[35px] z-[999] rounded-lg pt-2 translate-y-0 opacity-0 duration-300 transition-all ${showListView ? '-translate-y-7 opacity-100 mt-3' : ''}`} style={{ background: 'rgb(187, 247, 208)' }}>
                     <li className='text-start pl-2 text-sm hover:text-red-500 hover:cursor-pointer' onClick={() => setShowProfile(true)}>Profile</li>

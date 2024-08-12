@@ -18,12 +18,13 @@ interface Props {
     projectId: number;
     userId: number;
     sectionId: number;
-    setTasks?: any;
+    setTasks: React.Dispatch<React.SetStateAction<taskType[]>>;
     tasks?: taskType[]
     subTask: boolean;
+    task: taskType | null;
 }
 
-export default function AddTask({ showAddTask, setShowAddTask, projectId, userId, sectionId, setTasks, tasks, subTask }: Props) {
+export default function AddTask({ task, showAddTask, setShowAddTask, projectId, userId, sectionId, setTasks, tasks, subTask }: Props) {
     const [form, setForm] = useState({
         title: '',
         note: '',
@@ -61,9 +62,14 @@ export default function AddTask({ showAddTask, setShowAddTask, projectId, userId
 
     const handleSubmit = async () => {
         try {
-            console.log(form)
-            const res = await taskApiRequest.addTask({ ...form, startDate: date ? date[0] : null, endDate: date ? date[1] : null })
-            tasks && setTasks([...tasks, res.payload.task])
+            if (subTask) {
+                if (!task) return;
+                const res = await taskApiRequest.addSubTask(task.id, { ...form, startDate: date ? date[0] : null, endDate: date ? date[1] : null })
+                setTasks(prev => { return [...prev, res.payload.task] })
+            } else {
+                const res = await taskApiRequest.addTask({ ...form, startDate: date ? date[0] : null, endDate: date ? date[1] : null })
+                tasks && setTasks([...tasks, res.payload.task])
+            }
             handleCloseAddTask()
         }
         catch (err: any) {

@@ -4,7 +4,7 @@ import Section from './Section'
 import { motion } from "framer-motion"
 export default function page() {
     return (
-        <div>
+        <div >
             <div className='flex items-center justify-between duration-300'>
                 <div className='pl-4'>
                     <button className='text-sm font-semibold text-gray-600 hover:bg-white py-2 px-2 rounded-xl hover:shadow-sm'>My Project /</button>

@@ -77,34 +77,35 @@ const MenuList = ({ menus, toggle }: MenuListProps) => {
           return menu.submenu ? (
             <SubMenu key={menu.label} menu={menu} toggle={toggle} />
           ) : menu.path && menu.label === 'Today' ?
-            <li key={menu.label}>
+            <motion.li
+              animate={
+                menu.path === path ?
+                  { backgroundColor: "rgb(71 206 118)", color: "white", borderRadius: "7px", width: "100%" } :
+                  { width: 0 }} className='my-2' key={menu.label}
+            >
               <Link href={menu.path}
-                className={`flex justify-start text-sm font-mono font-bold items-center pl-4 text-gray-500 pb-2 pt-2 cursor-pointer animate-wiggle`}
-                style={
-                  menu.path === path ? { backgroundColor: "rgb(187 247 208 / 1)", color: "rgb(20 83 45 / 1)", borderRadius: "7px" } : {}
-                }
+              
+                className={`${menu.path === path ? 'text-white': 'text-gray-500'} flex justify-start text-sm font-mono font-bold items-center pl-4 text-gray-500 pb-2 pt-2 cursor-pointer w-[220px]`}
+                
               >
-                {menu.icon && <p className='relative'>
+                {menu.icon && <p className={`relative ${menu.path === path ? 'text-white': 'text-gray-500'}`}>
                   <FontAwesomeIcon icon={menu.icon} className='pr-4 text-2xl' />
-                  <span className='absolute top-2 left-1 z-[999] text-white text-xs'>{date}</span>
+                  <span className={`absolute top-2 left-1 z-[999] ${menu.path === path ? 'text-green-600':'text-white'} text-xs`}>{date}</span>
                 </p>}
                 {menu.label}
               </Link>
-            </li>
+            </motion.li>
             : menu.path && menu.icon ?
-              <li key={menu.label}>
+              <motion.li animate={menu.path === path ? { backgroundColor: "rgb(71 206 118)", color: "rgb(20 83 45 / 1)", borderRadius: "7px", width: "100%" } : { width: 0 }} className='my-2' key={menu.label}>
                 <Link href={menu.path}
-                  className={`flex justify-start text-sm font-mono font-bold items-center pl-4 text-gray-500 pb-2 pt-2 cursor-pointer animate-wiggle`}
-                  style={
-                    menu.path === path ? { backgroundColor: "rgb(187 247 208 / 1)", color: "rgb(20 83 45 / 1)", borderRadius: "7px" } : {}
-                  }
+                  className={`${menu.path === path ? 'text-white': 'text-gray-500'} flex justify-start duration-300 text-sm font-mono font-bold items-center pl-4 text-gray-500 pb-2 pt-2 cursor-pointer w-[220px]`}
                 >
                   {menu.icon &&
                     <FontAwesomeIcon icon={menu.icon} className='pr-4 text-2xl' />
                   }
                   {menu.label}
                 </Link>
-              </li>
+              </motion.li>
               : ""
 
         }

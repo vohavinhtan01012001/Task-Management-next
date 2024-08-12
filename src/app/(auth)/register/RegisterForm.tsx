@@ -17,9 +17,25 @@ export default function RegisterForm() {
     const navigation = useRouter()
     const { setUser } = useAppContext()
     const [loading, setLoading] = useState<boolean>(false)
+
+
+    const getRandomColor: any = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color === '#FFFFFF' ? getRandomColor() : color;
+    };
+
+
     const onFinish = async (values: any) => {
         try {
             setLoading(true)
+            const name = values.fullname.trim().split(' ')
+            const abb = name[name.length - 1][0]
+            values.abb = abb;
+            values.color = getRandomColor()
             const res = await authApiRequest.register(values)
             navigation.push('/login');
             toast.success(res.payload.message, {

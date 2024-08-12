@@ -49,7 +49,7 @@ export class EntityError extends HttpError {
 let clientLogoutRequest: null | Promise<any> = null
 export const isClient = () => typeof window !== 'undefined'
 const request = async <Response>(
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
   url: string,
   options?: CustomOptions | undefined
 ) => {
@@ -178,7 +178,14 @@ const http = {
     options?: Omit<CustomOptions, 'body'> | undefined
   ) {
     return request<Response>('DELETE', url, { ...options })
-  }
+  },
+  patch<Response>(
+    url: string,
+    body: any,
+    options?: Omit<CustomOptions, 'body'> | undefined
+  ) {
+    return request<Response>('PATCH', url, { ...options, body })
+  },
 }
 
 export default http

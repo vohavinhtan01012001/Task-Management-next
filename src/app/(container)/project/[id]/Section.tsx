@@ -13,6 +13,7 @@ import projectApiRequest from '@/apiRequests/project';
 import { projectType } from '@/schemaValidations/project.schema';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import ConFirmDialog from '@/components/Confirm';
 
 export default function Section() {
     const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -27,7 +28,7 @@ export default function Section() {
     const [showMenuSection, setShowMenuSection] = useState<number>(0)
     const [showInputTitle, setShowInputTitle] = useState<number>(0)
     const [inputTitle, setInputTitle] = useState<string>('')
-    const [showMenuCopy, setShowMenuCopy] = useState<number>(0)
+    const [showConfirm, setShowConfirm] = useState<boolean>(false)
 
     useEffect(() => {
         const pathParts = pathName.split('/');
@@ -87,52 +88,55 @@ export default function Section() {
     }, [pathName, projectId]);
 
 
-
     const [draggingElement, setDraggingElement] = useState<sectionType | null>(null);
     const [style, setStyle] = useState(0)
     const dragStart = (event: DragEvent<HTMLDivElement>, task: sectionType) => {
         setDraggingElement(task);
         // Add drag data
         event.dataTransfer.setData('text/plain', '');
-
+        event.currentTarget.style.opacity = '1';
     };
-
+    
     const dragOver = (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        event.currentTarget.style.opacity = '1';
     };
-
-    const dragEnter = (event: DragEvent<HTMLDivElement>) => {
+    
+    const dragEnter = (event: DragEvent<HTMLDivElement>, task: sectionType) => {
         event.preventDefault();
         event.currentTarget.style.opacity = '1';
     };
-
+    
     const dragLeave = (event: DragEvent<HTMLDivElement>) => {
         event.currentTarget.style.opacity = '1';
+        if (draggingElement !== event.currentTarget) {
+            event.currentTarget.style.background = ''; // Reset to default
+        }
     };
-
+    
     const drop = async (event: DragEvent<HTMLDivElement>, section: sectionType) => {
         event.preventDefault();
         event.currentTarget.style.opacity = '1';
-
+    
         if (draggingElement && draggingElement.id !== section.id) {
             const draggingIndex = sections.findIndex(item => item.id === draggingElement.id);
             const targetIndex = sections.findIndex(item => item.id === section.id);
-
-            const updateTask = [...sections]
+    
+            const updateTask = [...sections];
             updateTask.splice(targetIndex, 0, updateTask.splice(draggingIndex, 1)[0]);
-            setSections([...updateTask])
+            setSections([...updateTask]);
             const sectionList = updateTask.map((task, index) => {
-                return ({ id: task.id, priority: index })
-            })
-            console.log(sectionList)
-            await sectionApiRequest.updatePriority(sectionList)
+                return ({ id: task.id, priority: index });
+            });
+            console.log(sectionList);
+            await sectionApiRequest.updatePriority(sectionList);
             setDraggingElement(null);
         }
     };
 
-    const dragEnd = () => {
+    const dragEnd = (event: any) => {
+        event.currentTarget.style.opacity = '1';
         setDraggingElement(null);
+        event.currentTarget.style.background = '#fff';
     };
 
     const actionHandlers: Record<string, (section: sectionType) => Promise<void> | void> = {
@@ -142,9 +146,7 @@ export default function Section() {
         Copy: async (section: sectionType) => {
             try {
                 const res = await sectionApiRequest.copySection(section.id);
-                setSections(prev => {
-                    return [...prev, { ...section }]
-                })
+                getSections();
                 toast.success(res.payload.message, {
                     position: toast.POSITION.TOP_RIGHT
                 })
@@ -159,21 +161,22 @@ export default function Section() {
             setInputTitle(section.title);
         },
         Delete: async (section: sectionType) => {
-            try {
-                const res = await sectionApiRequest.deleteSection(section.id);
-                const dataIndex = sections.findIndex(s => s.id === section.id)
-                if (dataIndex != -1) {
-                    sections.splice(dataIndex, 1);
-                }
-                setSections([...sections]);
-                toast.success(res.payload.message, {
-                    position: toast.POSITION.TOP_RIGHT
-                })
-            } catch (error: any) {
-                toast.error(error.payload.message, {
-                    position: toast.POSITION.TOP_RIGHT
-                })
-            }
+            setShowConfirm(true);
+            // try {
+            //     const res = await sectionApiRequest.deleteSection(section.id);
+            //     const dataIndex = sections.findIndex(s => s.id === section.id)
+            //     if (dataIndex != -1) {
+            //         sections.splice(dataIndex, 1);
+            //     }
+            //     setSections([...sections]);
+            //     toast.success(res.payload.message, {
+            //         position: toast.POSITION.TOP_RIGHT
+            //     })
+            // } catch (error: any) {
+            //     toast.error(error.payload.message, {
+            //         position: toast.POSITION.TOP_RIGHT
+            //     })
+            // }
         },
     }
 
@@ -213,25 +216,27 @@ export default function Section() {
     return (
         <div className=''>
             <h1 className='text-2xl font-bold font-serif'>{project?.title}</h1>
-            <div className='grid grid-cols-5 gap-6 mx-4 mt-2'>
+            <div className='container grid grid-cols-5 gap-6 mx-4 mt-2'>
                 {
                     sections.map((section, index) => {
                         return (
-                            <motion.div key={index}
+                            <div key={index}
                                 draggable={true}
                                 onDragStart={(e: any) => dragStart(e, section)}
                                 onDragOver={dragOver}
-                                onDragEnter={dragEnter}
+                                onDragEnter={(e: any) => dragEnter(e, section)}
                                 onDragLeave={dragLeave}
                                 onDrop={(e: any) => drop(e, section)}
-                                onDragEnd={dragEnd}
-                                initial={{ opacity: 0, x: -120 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{
-                                    duration: 0.3,
-                                    delay: index * 0.1,
-                                }}
-                                className={`${isHovered ? "" : "hover:shadow-md hover:cursor-grab  active:cursor-grabbing hover:border-gray-200"} border border-transparent w-full px-4 pt-4 pb-10 rounded-lg shadow relative`}
+                                onDragEnd={(e: any) => dragEnd(e)}
+                                // initial={{ opacity: 0, x: -120 }}
+                                // animate={{ opacity: 1, x: 0 }}
+                                // transition={{
+                                //     duration: 0.3,
+                                //     delay: index * 0.1,
+                                // }}
+                                className={`${isHovered ? "" : "hover:shadow-md hover:cursor-grab  active:cursor-grabbing hover:border-gray-200"} 
+                                    border w-[260px] h-auto border-transparent px-4 pt-4 pb-10 rounded-lg shadow relative active:*:opacity-45 active:border-none active:shadow-none`
+                                }
                             >
                                 <div >
                                     <div className={`flex ${showInputTitle === section.id ? 'items-start' : 'items-center'} justify-between pb-4`} >
@@ -263,7 +268,7 @@ export default function Section() {
                                         onMouseLeave={handleMouseLeave}
                                         className='duration-300'
                                     >
-                                        <TaskInSection projectId={section.projectId} sectionId={section.id} userId={section.userId} />
+                                        <TaskInSection getSections={getSections} section={section} taskList={section.Tasks} project={project} setSections={setSections} />
                                     </div>
                                 </div>
                                 <div
@@ -271,7 +276,8 @@ export default function Section() {
                                 >
                                     <motion.div
                                         className='border w-[130px]'
-                                        animate={showMenuSection === section.id ? { opacity: 1, y: 0 } : { opacity: 0, y: -100 }}
+                                        initial={{ opacity: 0, y: -180, height: 0 }}
+                                        animate={showMenuSection === section.id ? { opacity: 1, y: 0, height: "auto" } : { opacity: 1, y: -180, height: 0 }}
                                     >
                                         <div >
                                             <button name="Share" onClick={(e: any) => handleActions(e, section)} className='w-full py-3 px-3 text-start bg-white hover:bg-gray-100 text-gray-600 text-sm duration-300'><FontAwesomeIcon className='text-gray-500 pr-1' icon={faShareNodes} />{' '}Share</button>
@@ -281,7 +287,7 @@ export default function Section() {
                                         </div>
                                     </motion.div>
                                 </div>
-                            </motion.div>
+                            </div>
 
                         )
                     })
@@ -305,10 +311,10 @@ export default function Section() {
                                     </div>
                                 </div>
 
-                            ) : <button className={`flex items-center text-gray-400 text-sm w-[70%] hover:text-red-600 mt-6 px-4 py-2 bg-slate-100 rounded-lg duration-300 animate-show-section`} onClick={() => setShowInputSection(true)}>
+                            ) : <motion.button whileTap={{ scale: 0.9 }} className={`flex items-center text-gray-400 text-sm w-[70%] hover:text-red-600 mt-6 px-4 py-2 bg-slate-100 rounded-lg duration-300 animate-show-section`} onClick={() => setShowInputSection(true)}>
                                 <FontAwesomeIcon icon={faSquarePlus} className='text-base pr-3' />
                                 <p >Add section</p>
-                            </button>
+                            </motion.button>
 
                     }
                 </div>
@@ -323,7 +329,7 @@ export default function Section() {
             {
                 showMenuSection != 0 && <div className='fixed top-0 right-0 left-0 bottom-0 z-20' onClick={() => setShowMenuSection(0)}></div>
             }
-
+            <ConFirmDialog open={showConfirm} onClickOk={() => { }} titleButtonCancel='Cancel' titleButtonOk='Delete' handleCancel={() => setShowConfirm(false)} icon={faTrash} title='Xác nhận xóa ?' />
         </div>
     )
 }

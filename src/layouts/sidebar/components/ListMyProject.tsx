@@ -72,10 +72,10 @@ const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFav
                 const path = pathParts[2];
 
                 return (
-                    <li key={index}>
+                    <motion.li key={index} animate={project.id.toString() === path ? { backgroundColor: "rgb(71 206 118)", color: "white", borderRadius: "8px", width: "100%" } : { width: 0 }}>
                         <motion.div
-                            className={`${project.id.toString() === path ? "" : "hover:bg-gray-100 rounded-lg"} duration-300`}
-                            style={project.id.toString() === path ? { backgroundColor: "rgb(187 247 208 / 1)", color: "rgb(20 83 45 / 1)", borderRadius: "8px" } : {}}
+                            whileTap={{ scale: 0.9 }}
+                            className={`${project.id.toString() === path ? "" : "hover:bg-gray-100 rounded-lg"} duration-300 w-[220px]`}
                             draggable={showMyProjects}
                             onDragStart={(e: any) => dragStart(e, project)}
                             onDragOver={dragOver}
@@ -90,17 +90,17 @@ const ListMyProject: React.FC<DraggableListProps> = ({ favorited, setProjectsFav
                                 onMouseLeave={() => setIsHovered(false)}
                             >
                                 <div
-                                    className={` flex justify-start font-mono items-center pl-4 text-gray-500 text-base pb-2 pt-2 cursor-pointer animate-wiggle ${showMyProjects ? 'cursor-pointer' : 'cursor-default'} overflow-hidden whitespace-nowrap text-ellipsis`}
+                                    className={`${project.id.toString() === path ? 'text-white' : 'text-gray-500'} flex justify-start font-mono items-center pl-4 text-gray-500 text-base pb-2 pt-2 cursor-pointer animate-wiggle ${showMyProjects ? 'cursor-pointer' : 'cursor-default'} overflow-hidden whitespace-nowrap text-ellipsis`}
                                 >
                                     <span className={`pr-2`} style={{ color: project.color, fontWeight: "bold" }}>
                                         {favorited ? <FontAwesomeIcon icon={faHeart} className='text-sm ' /> : "#"}
                                     </span>
                                     <p className='w-full truncate'>{project.title}</p>
                                 </div>
-                                <p className='pr-2 text-md text-gray-400'>{isHovered ? <FontAwesomeIcon icon={faEllipsis} className='hover:text-gray-700' /> : ''}</p>
+                                <p className='pr-2 text-md text-gray-400'>{isHovered ? <FontAwesomeIcon icon={faEllipsis} className={`${project.id.toString() === path ? 'text-white' : 'text-gray-500'} hover:text-gray-700`} /> : ''}</p>
                             </div>
                         </motion.div>
-                    </li>
+                    </motion.li>
                 );
             })}
         </ul>

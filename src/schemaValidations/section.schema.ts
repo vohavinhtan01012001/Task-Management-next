@@ -1,4 +1,6 @@
 import * as Yup from 'yup';
+import { projectType } from './project.schema';
+import { taskType } from './task.schema';
 
 
 export type sectionType = {
@@ -7,6 +9,8 @@ export type sectionType = {
     userId: number;
     projectId: number;
     priority: number;
+    Tasks:taskType[]
+    Project:projectType;
 }
 
 export const sectionSchema= Yup.object(
