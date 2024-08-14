@@ -3,9 +3,9 @@
 import sectionApiRequest from '@/apiRequests/section';
 import TaskInSection from '@/app/(container)/project/[id]/TaskInSection';
 import { sectionType } from '@/schemaValidations/section.schema';
-import { faCheck, faCopy, faEdit, faEllipsis, faPlus, faShare, faShareNodes, faSquarePlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCopy, faEdit, faEllipsis, faShareNodes, faSquarePlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { DragEvent, useEffect, useState } from 'react'
+import React, { DragEvent, useCallback, useEffect, useState } from 'react'
 import { Button } from 'antd';
 import { usePathname } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -69,7 +69,7 @@ export default function Section() {
         setIsHovered(false);
     };
 
-    const getSections = async () => {
+    const getSections = useCallback(async () => {
         try {
             if (projectId) {
                 const project = await projectApiRequest.getById(projectId);
@@ -80,12 +80,12 @@ export default function Section() {
         } catch (error) {
             console.log(error);
         }
-    }
+    }, [projectId]);
 
 
     useEffect(() => {
         getSections()
-    }, [pathName, projectId]);
+    }, [getSections]);
 
 
     const [draggingElement, setDraggingElement] = useState<sectionType | null>(null);
@@ -96,31 +96,28 @@ export default function Section() {
         event.dataTransfer.setData('text/plain', '');
         event.currentTarget.style.opacity = '1';
     };
-    
+
     const dragOver = (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
     };
-    
+
     const dragEnter = (event: DragEvent<HTMLDivElement>, task: sectionType) => {
         event.preventDefault();
         event.currentTarget.style.opacity = '1';
     };
-    
+
     const dragLeave = (event: DragEvent<HTMLDivElement>) => {
         event.currentTarget.style.opacity = '1';
-        if (draggingElement !== event.currentTarget) {
-            event.currentTarget.style.background = ''; // Reset to default
-        }
     };
-    
+
     const drop = async (event: DragEvent<HTMLDivElement>, section: sectionType) => {
         event.preventDefault();
         event.currentTarget.style.opacity = '1';
-    
+
         if (draggingElement && draggingElement.id !== section.id) {
             const draggingIndex = sections.findIndex(item => item.id === draggingElement.id);
             const targetIndex = sections.findIndex(item => item.id === section.id);
-    
+
             const updateTask = [...sections];
             updateTask.splice(targetIndex, 0, updateTask.splice(draggingIndex, 1)[0]);
             setSections([...updateTask]);

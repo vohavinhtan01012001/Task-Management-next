@@ -17,7 +17,7 @@ export default function Page404() {
         4
       </h1>
       <h2>Error: 404 page not found</h2>
-      <p>Sorry, the page you're looking for cannot be accessed</p>
+      <p>Sorry, the page you&apos;re looking for cannot be accessed</p>
     </main>
   )
 }

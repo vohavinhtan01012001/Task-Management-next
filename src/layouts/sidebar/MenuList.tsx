@@ -30,8 +30,8 @@ const MenuList = ({ menus, toggle }: MenuListProps) => {
   const pathName = usePathname()
   const router = useRouter();
   const dateTime = new Date();
-  const [showMyProjects, setShowMyProjects] = useState<boolean>(false);
   const [date, setDate] = useState<string>("");
+  const [showMyProjects, setShowMyProjects] = useState<boolean>(false);
   const [projects, setProjects] = useState<projectType[]>([])
   const [projectsFavorite, setProjectsFavorite] = useState<any[]>([])
   const [showAddProject, setShowAddMyProject] = useState<boolean>(false);
@@ -52,13 +52,13 @@ const MenuList = ({ menus, toggle }: MenuListProps) => {
 
 
   useEffect(() => {
+    const dateTime = new Date(); 
     if (dateTime.getDate() < 10) {
-      setDate(`0${dateTime.getDate()}`);
+        setDate(`0${dateTime.getDate()}`);
+    } else {
+        setDate(dateTime.getDate().toString());
     }
-    else {
-      setDate(dateTime.getDate().toString());
-    }
-  }, [dateTime])
+}, []);
 
   const handleMenuClick = (path: string) => {
     router.push(path);

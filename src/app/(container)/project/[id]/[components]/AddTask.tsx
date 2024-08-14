@@ -58,7 +58,7 @@ export default function AddTask({ task, showAddTask, setShowAddTask, projectId, 
         if (projectId && userId && sectionId) {
             setForm({ ...form, color: valueColor, projectId: projectId, userId: userId, sectionId: sectionId })
         }
-    }, [showAddTask, valueColor])
+    }, [showAddTask, valueColor, projectId, userId, sectionId, form])
 
     const handleSubmit = async () => {
         try {

@@ -1,6 +1,6 @@
 import { taskType } from "@/schemaValidations/task.schema";
 import { Button, Input, Modal, Avatar } from 'antd';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faAngleUp, faBars, faCaretDown, faCaretRight, faCheck, faEllipsis, faFile, faHeart, faMicrophone, faPlus, faSmile, faStar, faUpDown, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import ButtonHover from "@/components/ButtonHover";
@@ -65,6 +65,37 @@ export default function ModalTaskDetail({ project, setTasks, section, tasks, set
         closed: { opacity: 0, y: 20, transition: { duration: 0.2 } }
     };
 
+    const getComments = useCallback(async () => {
+        try {
+            if (!task?.id) return;
+            const res = await taskApiRequest.getComments(task?.id);
+            setComments(res.payload.comments);
+        } catch (error) {
+            console.error('Failed to fetch comments:', error);
+        }
+    }, [task]);
+
+    const handleCancel = useCallback(() => {
+        setOpen(false);
+        setTask(null);
+        setOpenListProject(0);
+        setShowListSubTask(false);
+        setShowInputComment(false);
+        setHideTaskListStatus(false);
+        setShowComments(false);
+        setComments([]);
+    }, [setOpen, setTask]);
+
+
+    const handleGetSubTasks = useCallback(async () => {
+        try {
+            if (!task?.id) return;
+            const res = await taskApiRequest.getSubTasks(task.id);
+            setTaskList(res.payload.tasks);
+        } catch (error) {
+            console.error("Failed to get subtasks:", error);
+        }
+    }, [task]);
 
 
     useEffect(() => {
@@ -79,28 +110,9 @@ export default function ModalTaskDetail({ project, setTasks, section, tasks, set
         else {
             handleCancel();
         }
-    }, [open, task])
+    }, [open, task, getComments, handleCancel, handleGetSubTasks])
 
-    const handleCancel = () => {
-        setOpen(false);
-        setTask(null);
-        setOpenListProject(0);
-        setShowListSubTask(false);
-        setShowInputComment(false);
-        setHideTaskListStatus(false);
-        setShowComments(false);
-        setComments([])
-    };
 
-    const getComments = async () => {
-        try {
-            if (!task?.id) return;
-            const res = await taskApiRequest.getComments(task?.id);
-            setComments(res.payload.comments);
-        } catch (error) {
-
-        }
-    }
 
 
     const handleUpdate = async () => {
@@ -127,16 +139,6 @@ export default function ModalTaskDetail({ project, setTasks, section, tasks, set
         }
     }
 
-    const handleGetSubTasks = async () => {
-        try {
-            console.log(task)
-            if (!task?.id) return;
-            const res = await taskApiRequest.getSubTasks(task.id);
-            setTaskList(res.payload.tasks)
-        } catch (error) {
-
-        }
-    }
 
     const handleCheckTask = async () => {
         try {
